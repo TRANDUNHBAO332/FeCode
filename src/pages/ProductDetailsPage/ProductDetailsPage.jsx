@@ -1,0 +1,14 @@
+import React from "react";
+import ProductDetailsComponent from "../../components/ProductDetailsComponent/ProductDetailsComponent";
+
+const ProductDetailsPage=()=>{
+    return(
+        <div style={{padding:'0 120px', background: '#efefef', marginTop:'-22px',  height:'1000px'}}>
+         <h5> Trang chủ</h5>
+         <div>
+         <ProductDetailsComponent/>
+         </div>
+        </div>
+    )
+}
+export default ProductDetailsPage
