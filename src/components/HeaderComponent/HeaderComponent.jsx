@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge, Col, Button, Popover } from "antd";
 import {
   WrapperContentPopup,
@@ -24,6 +24,7 @@ const HeaderComponent = () => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userName, setUserName] = useState("");
 
   const handleNavigateLogin = () => {
     navigate("/sign-in");
@@ -34,6 +35,13 @@ const HeaderComponent = () => {
     dispatch(resetUser());
     setIsSubmitting(false);
   };
+
+  useEffect(() => {
+    setIsSubmitting(true);
+    setUserName(user?.name);
+    setIsSubmitting(false);
+  }, [user?.name]);
+
   const content = (
     <div>
       <WrapperContentPopup onClick={handleLogout}>
@@ -77,7 +85,7 @@ const HeaderComponent = () => {
               <>
                 <Popover content={content} trigger="click">
                   <div style={{ cursor: "pointer" }}>
-                    {user?.name?.length ? user?.name : user?.email}
+                    {userName?.length ? userName : user?.email}
                   </div>
                 </Popover>
               </>
@@ -86,7 +94,7 @@ const HeaderComponent = () => {
                 <WrapperTextHeaderSmall>
                   Đăng nhập/Đăng ký
                 </WrapperTextHeaderSmall>
-                ``
+
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <WrapperTextHeaderSmall>Tài khoản</WrapperTextHeaderSmall>
                   <CaretDownOutlined />
