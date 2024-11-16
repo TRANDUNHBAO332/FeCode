@@ -24,7 +24,7 @@ export const signupUser = async (data) => {
  export const getDetailsUser = async (id, access_token) => {
    try {
      const res = await axiosJWT.get(
-       `${process.env.REACT_APP_API_URL}/user/get-details/${id}`, 
+       `${process.env.REACT_APP_API_URL}/user/get-details/${id}`,
        {
          headers: { token: `Bearer ${access_token}` },
        }
@@ -38,9 +38,9 @@ export const signupUser = async (data) => {
  export const refreshToken = async () => {
   try {
     const res = await axios.post(
-      `${process.env.REACT_APP_API_URL}/user/refresh-token`, {
-        withCredentials: true
-      }
+      `${process.env.REACT_APP_API_URL}/refresh-token`, 
+      {},  // Body có thể là rỗng nếu không cần gửi thêm dữ liệu
+      { withCredentials: true }  // Cấu hình vớiCredentials đúng cách
     );
     return res.data;
   } catch (error) {

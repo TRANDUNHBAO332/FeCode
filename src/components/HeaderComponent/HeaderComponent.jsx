@@ -19,36 +19,43 @@ import * as UserService from "../../services/UserService";
 import { resetUser } from "../../redux/slides/userSlide";
 import Loading from "../../components/LoadingComponent/Loading";
 
-const HeaderComponent = () => {
+const HeaderComponent = ({ isHiddenSearch = false, isHiddenCart = false }) => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userName, setUserName] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
 
   const handleNavigateLogin = () => {
     navigate("/sign-in");
   };
   const handleLogout = async () => {
-    setIsSubmitting(true);
     await UserService.logoutUser();
+    localStorage.removeItem("access_token");
     dispatch(resetUser());
-    setIsSubmitting(false);
   };
 
   useEffect(() => {
     setIsSubmitting(true);
     setUserName(user?.name);
+    setUserAvatar(user?.avatar);
     setIsSubmitting(false);
-  }, [user?.name]);
+  }, [user?.name, user?.avatar]);
 
   const content = (
     <div>
-      <WrapperContentPopup onClick={handleLogout}>
-        Đăng xuất
-      </WrapperContentPopup>
+
       <WrapperContentPopup onClick={() => navigate("/profile-user")}>
         Thông tin người dùng
+      </WrapperContentPopup>
+      {user?.isAdmin && (
+        <WrapperContentPopup onClick={() => navigate("/system/admin")}>
+          Quản lí hệ thống
+        </WrapperContentPopup>
+      )}
+      <WrapperContentPopup onClick={handleLogout}>
+        Đăng xuất
       </WrapperContentPopup>
     </div>
   );
@@ -72,15 +79,32 @@ const HeaderComponent = () => {
         }}
       >
         <WrapperTextHeader>CUAHANGNOITHAT</WrapperTextHeader>
-        <ButtonInputSearch
-          size="large"
-          bordered={false}
-          textButton="Tìm kiếm"
-          placeholder="Input search text"
-        />
+
+        {!isHiddenSearch && (
+          <ButtonInputSearch
+            size="large"
+            bordered={false}
+            textButton="Tìm kiếm"
+            placeholder="Input search text"
+
+          />
+        )}
         <Loading isLoading={isSubmitting}>
           <WrapperHeaderAccount>
-            <UserOutlined style={{ fontSize: "30px" }} />
+            {userAvatar ? (
+              <img
+                src={userAvatar}
+                style={{
+                  height: "40px",
+                  width: "40px",
+                  borderRadius: " 50%",
+                  objectFit: "cover",
+                }}
+                alt="avatar"
+              />
+            ) : (
+              <UserOutlined style={{ fontSize: "30px" }} />
+            )}
             {user?.access_token ? (
               <>
                 <Popover content={content} trigger="click">
@@ -103,12 +127,15 @@ const HeaderComponent = () => {
             )}
           </WrapperHeaderAccount>
         </Loading>
-        <div>
-          <Badge count={4} size="small">
-            <ShoppingCartOutlined style={{ fontSize: "30px", color: "#fff" }} />
-          </Badge>
-          <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
-        </div>
+        {!isHiddenCart && (
+          <div>
+            <Badge count={4} size="small">
+              <ShoppingCartOutlined style={{ fontSize: "30px", color: "#fff" }} />
+            </Badge>
+            <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
+          </div>
+        )}
+
       </div>
     </div>
   );

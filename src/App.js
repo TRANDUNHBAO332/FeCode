@@ -1,28 +1,28 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { routes } from './routes';
 import DefaultComponent from './components/DefaultComponent/DefaultComponent';
 import { isJsonstring } from './untils';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateUser } from './redux/slides/userSlide';
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import * as UserService from "./services/UserService";
 import { getDetailsUser } from "./services/UserService";
+import Loading from './components/LoadingComponent/Loading';
 
 function App() {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false); // Di chuyển useState vào trong component
+  const user = useSelector((state) => state.user);
 
   // Hàm để lấy và decode token
   const handleDecoded = () => {
     let storageData = localStorage.getItem("access_token");
     let decoded = null;
-
     if (storageData && isJsonstring(storageData)) {
       try {
         storageData = JSON.parse(storageData); // Parse JSON
         decoded = jwtDecode(storageData);
-        console.log("Parsed Storage Data:", storageData); // Kiểm tra giá trị sau khi parse
-        console.log("Decoded Token:", decoded); // In giá trị decoded
       } catch (error) {
         console.error("Lỗi khi decode token:", error);
       }
@@ -31,11 +31,14 @@ function App() {
   };
 
   useEffect(() => {
+    setIsLoading(true);  // Đặt trạng thái là true khi bắt đầu
     const { storageData, decoded } = handleDecoded();
     if (decoded?.id) {
       handleGetDetailsUser(decoded.id, storageData);
+    } else {
+      setIsLoading(false);  // Nếu không có user hoặc token, tắt loading
     }
-  }, []);
+  }, []);  // useEffect chỉ chạy một lần khi component mount
 
   // Hàm để lấy thông tin chi tiết người dùng
   const handleGetDetailsUser = async (id, token) => {
@@ -44,6 +47,8 @@ function App() {
       dispatch(updateUser({ ...res?.data, access_token: token }));
     } catch (error) {
       console.error("Lỗi khi lấy thông tin người dùng:", error);
+    } finally {
+      setIsLoading(false);  // Sau khi lấy dữ liệu, tắt loading
     }
   };
 
@@ -62,21 +67,26 @@ function App() {
 
   return (
     <div>
-      <Router>
-        <Routes>
-          {routes.map((route) => {
-            const Page = route.page;
-            const Layout = route.isShowHeader ? DefaultComponent : Fragment;
-            return (
-              <Route key={route.path} path={route.path} element={
-                <Layout>
-                  <Page />
-                </Layout>
-              } />
-            );
-          })}
-        </Routes>
-      </Router>
+      <Loading isLoading={isLoading}>
+        <Router>
+          <Routes>
+            {routes.map((route) => {
+              const Page = route.page;
+              const isCheckAuth = !route.isPrivate || user.isAdmin; // Kiểm tra quyền truy cập
+              if (!isCheckAuth) return null; // Nếu không có quyền truy cập, không render route
+
+              const Layout = route.isShowHeader ? DefaultComponent : Fragment;
+              return (
+                <Route key={route.path} path={route.path} element={
+                  <Layout>
+                    <Page />
+                  </Layout>
+                } />
+              );
+            })}
+          </Routes>
+        </Router>
+      </Loading>
     </div>
   );
 }

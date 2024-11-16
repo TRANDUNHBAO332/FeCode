@@ -4,9 +4,11 @@ import {
   WrapperHeader,
   WrapperInput,
   WrapperLabel,
+  WrapperUploadFile,
 } from "./style";
 import InputForm from "../../components/InputForm/InputForm";
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
+import { UploadOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import * as UserService from "../../services/UserService";
 import { useMutationHooks } from "../../hooks/useMutationHook";
@@ -15,6 +17,8 @@ import * as message from "../../components/Mesage/Message";
 import { getDetailsUser } from "../../services/UserService";
 import { updateUser as updateUserFromService } from "../../services/UserService"; // Đổi tên import từ UserService
 import { updateUser } from "../../redux/slides/userSlide";
+import { Button, Upload } from "antd";
+import { getBase64 } from "../../untils";
 const ProfilePage = () => {
   const user = useSelector((state) => state.user);
 
@@ -30,8 +34,6 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
 
   const { data, isLoading, isSuccess, isError } = mutation;
-
-  console.log("data", data);
 
   useEffect(() => {
     setEmail(user?.email);
@@ -71,8 +73,13 @@ const ProfilePage = () => {
   const handleOnchangeAddress = (value) => {
     setAddress(value);
   };
-  const handleOnchangeAvatar = (value) => {
-    setAvatar(value);
+  const handleOnchangeAvatar = async ({ fileList }) => {
+    if (!fileList || fileList.length === 0) return; // Kiểm tra fileList
+    const file = fileList[0]; // Lấy file đầu tiên
+    if (!file.url && !file.preview) {
+      file.preview = await getBase64(file.originFileObj);
+    }
+    setAvatar(file.preview); // Cập nhật state
   };
 
   const handleUpdate = () => {
@@ -198,12 +205,27 @@ const ProfilePage = () => {
         </WrapperInput>
         <WrapperInput>
           <WrapperLabel htmlFor="avatar">Avatar</WrapperLabel>
-          <InputForm
+          <WrapperUploadFile onChange={handleOnchangeAvatar} maxCount={1}>
+            <Button icon={<UploadOutlined />}>Select File</Button>
+          </WrapperUploadFile>
+          {avatar && (
+            <img
+              src={avatar}
+              style={{
+                height: "60px",
+                width: "60px",
+                borderRadius: " 50%",
+                objectFit: "cover",
+              }}
+              alt="avatar"
+            />
+          )}
+          {/* <InputForm
             style={{ width: "300px" }}
             id="avatar"
             value={avatar}
             onChange={handleOnchangeAvatar}
-          />
+          /> */}
           <ButtonComponent
             onClick={handleUpdate} // Sửa lại tên hàm đúng chính tả
             size={40}

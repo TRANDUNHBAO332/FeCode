@@ -1,3 +1,4 @@
+import AdminPage from "../pages/AdminPage/AdminPage";
 import HomePage from "../pages/HomePage/HomePage";
 import NotFoundPage from "../pages/NotfoundPage/NotFoundPage"; // Đảm bảo tên tệp và thư mục là chính xác
 import OrderPage from "../pages/OrderPage/OrderPage";
@@ -48,6 +49,12 @@ export const routes = [
         path: '/profile-user',
         page: ProfilePage,
         isShowHeader: true, // Thêm dấu phẩy ở đây
+    },
+    {
+        path: '/system/admin',
+        page: AdminPage,
+        isShowHeader: false, // Thêm dấu phẩy ở đây
+        isPrivate: true
     },
     {
         path: '/*',
