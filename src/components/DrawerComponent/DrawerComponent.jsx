@@ -1,18 +1,18 @@
-import { Drawer } from "antd";
 import React from "react";
-const DrawerComponent = (
-  { title = "Drawer" },
+import { Drawer } from "antd";
+
+const DrawerComponent = ({
+  title = "Drawer",
   placement = "right",
-  isOpen = "false",
+  isOpen = false,
   children,
   ...rests
-) => {
+}) => {
   return (
-    <>
-      <Drawer title={{ title }} placement={placement} open={isOpen} {...rests}>
-        {children}
-      </Drawer>
-    </>
+    <Drawer title={title} placement={placement} open={isOpen} {...rests}>
+      {children}
+    </Drawer>
   );
 };
+
 export default DrawerComponent;
