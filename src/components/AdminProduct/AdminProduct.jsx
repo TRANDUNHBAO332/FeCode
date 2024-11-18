@@ -8,6 +8,7 @@ import { getBase64 } from '../../untils';
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as ProductService from "../../services/ProductService";
 import * as message from "../../components/Mesage/Message";
+import { useQuery } from '@tanstack/react-query';
 
 const AdminProduct = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,8 +25,14 @@ const AdminProduct = () => {
         const res = await ProductService.createProduct(data); // Gọi API và chờ kết quả
         return res; // Trả về kết quả từ server
     });
+    const getAllProducts = async () => {
+        const res = await ProductService.getAllProduct()
+        return res
 
+    }
     const { data, isLoading, isSuccess, isError } = mutation;
+    const { isLoading: isLoadingProduct, data: products } = useQuery({ queryKey: ['products'], queryFn: getAllProducts })
+    console.log('products', products)
 
     useEffect(() => {
         if (isSuccess && data?.status === 'OK') {
