@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
 import {
   ButtonComponentMore,
@@ -12,10 +12,13 @@ import slider3 from "../../assets/image/slider3.webp";
 import CardComponent from "../../components/CardComponent/CardComponent";
 import { useQuery } from "@tanstack/react-query";
 import * as ProductService from "../../services/ProductService";
+import { useSelector } from "react-redux";
 const HomePage = () => {
+  const searchProduct = useSelector((state) => state?.product?.search)
+  const refSearch= useRef()
   const arr = ["Phòng khách", "Phòng bếp", "Phòng ngủ"];
-  const fetchProductAll = async () => {
-    const response = await ProductService.getAllProduct();
+  const fetchProductAll = async (search) => {
+    const response = await ProductService.getAllProduct(search);
     return response; // Đảm bảo trả về dữ liệu từ API
   };
 
@@ -26,7 +29,14 @@ const HomePage = () => {
     retryDelay: 1000,
   });
 
-  console.log("data", products);
+  useEffect (() =>{
+if(refSearch.current){
+console.log('chay chay')
+fetchProductAll(searchProduct)
+}
+refSearch.current=true
+  },[searchProduct])
+  //console.log("data", products);
 
   return (
     <>

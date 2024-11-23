@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { WrapperHeader, WrapperUploadFile } from "./style";
 import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import TableComponent from "../TableComponent/TableComponent";
-import { Form, Modal, Button } from "antd";
+import { Form, Button } from "antd";
 import InputComponent from "../InputComponent/InputComponent";
 import { getBase64 } from "../../untils";
 import { useMutationHooks } from "../../hooks/useMutationHook";
@@ -10,15 +10,15 @@ import * as ProductService from "../../services/ProductService";
 import * as message from "../../components/Mesage/Message";
 import { useQuery } from "@tanstack/react-query";
 import DrawerComponent from "../../components/DrawerComponent/DrawerComponent";
-import { useSelector } from 'react-redux'
+import { useSelector } from "react-redux";
 import ModalComponent from "../../components/ModalComponent/ModalComponent";
 
 const AdminProduct = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rowSelected, setRowSelected] = useState("");
   const [isOpenDrawer, setIsopenDrawer] = useState(false);
-  const [isModalOpenDelete, setisModalOpenDelete] = useState(false)
-  const user = useSelector((state) => state?.user)
+  const [isModalOpenDelete, setisModalOpenDelete] = useState(false);
+  const user = useSelector((state) => state?.user);
   const [stateProduct, setStateProduct] = useState({
     name: "",
     price: "",
@@ -42,21 +42,17 @@ const AdminProduct = () => {
     const res = await ProductService.createProduct(data); // Gọi API và chờ kết quả
     return res; // Trả về kết quả từ server
   });
-  console.log('rowSelected', rowSelected)
+  console.log("rowSelected", rowSelected);
   const mutationUpdate = useMutationHooks((data) => {
-
-    const { id, token, ...rests } = data
-    const res = ProductService.updateProduct(
-      id, token, { ...rests })
-    return res
-  })
+    const { id, token, ...rests } = data;
+    const res = ProductService.updateProduct(id, token, { ...rests });
+    return res;
+  });
   const mutationDeleted = useMutationHooks((data) => {
-
-    const { id, token } = data
-    const res = ProductService.deleteProduct(
-      id, token)
-    return res
-  })
+    const { id, token } = data;
+    const res = ProductService.deleteProduct(id, token);
+    return res;
+  });
   const getAllProducts = async () => {
     const res = await ProductService.getAllProduct();
     return res;
@@ -82,12 +78,11 @@ const AdminProduct = () => {
     }
   }, [form, stateProductDetails]);
 
-
   useEffect(() => {
-    if (rowSelected) {
+    if (rowSelected && isOpenDrawer) {
       fetchGetDetailsProduct(rowSelected);
     }
-  }, [rowSelected]);
+  }, [rowSelected, isOpenDrawer]);
 
   console.log("StateProduct", stateProductDetails);
 
@@ -97,24 +92,33 @@ const AdminProduct = () => {
     }
 
     setIsopenDrawer(true);
-    console.log("rowSelected", rowSelected);
   };
   const { data, isLoading, isSuccess, isError } = mutation;
-  const { data: dataUpdateed, isLoading: isLoadingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate;
-  const { data: dataDeleted, isLoading: isLoadingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDeleted;
-  console.log('dataUpdated', dataUpdateed)
+  const {
+    data: dataUpdateed,
+    isLoading: isLoadingUpdated,
+    isSuccess: isSuccessUpdated,
+    isError: isErrorUpdated,
+  } = mutationUpdate;
+  const {
+    data: dataDeleted,
+    isLoading: isLoadingDeleted,
+    isSuccess: isSuccessDeleted,
+    isError: isErrorDeleted,
+  } = mutationDeleted;
+  console.log("dataUpdated", dataUpdateed);
   const queryProduct = useQuery({
     queryKey: ["products"],
     queryFn: getAllProducts,
   });
-  const { isLoading: isLoadingProduct, data: products } = queryProduct
+  const { isLoading: isLoadingProduct, data: products } = queryProduct;
   const renderAction = () => {
     return (
       <div>
         <DeleteOutlined
           style={{ color: "red", fontSize: "20px", cursor: "pointer" }}
           onClick={() => {
-            setisModalOpenDelete(true)
+            setisModalOpenDelete(true);
           }}
         />
         <EditOutlined
@@ -130,17 +134,17 @@ const AdminProduct = () => {
       title: "Name",
       dataIndex: "name",
       render: (text) => <a>{text}</a>,
-      sorter: (a, b) => a.name.length - b.name.length
+      sorter: (a, b) => a.name.length - b.name.length,
     },
     {
       title: "Price",
       dataIndex: "price",
-      sorter: (a, b) => a.price - b.price
+      sorter: (a, b) => a.price - b.price,
     },
     {
       title: "Rating",
       dataIndex: "rating",
-      sorter: (a, b) => a.rating - b.rating
+      sorter: (a, b) => a.rating - b.rating,
     },
     {
       title: "Type",
@@ -187,16 +191,19 @@ const AdminProduct = () => {
   }, [isSuccessDeleted]);
 
   const handleCancelDelete = () => {
-    setisModalOpenDelete(false)
-  }
+    setisModalOpenDelete(false);
+  };
 
   const handleDeleteProduct = () => {
-    mutationDeleted.mutate({ id: rowSelected, token: user?.access_token }, {
-      onSettled: () => {
-        queryProduct.refetch()
+    mutationDeleted.mutate(
+      { id: rowSelected, token: user?.access_token },
+      {
+        onSettled: () => {
+          queryProduct.refetch();
+        },
       }
-    })
-  }
+    );
+  };
   const handleCancel = () => {
     setIsModalOpen(false); // Đóng modal
     setStateProduct({
@@ -210,7 +217,6 @@ const AdminProduct = () => {
     });
     form.resetFields();
   };
-
 
   const handleCloseDrawer = () => {
     setIsopenDrawer(false); // Đóng modal
@@ -229,8 +235,8 @@ const AdminProduct = () => {
   const onFinish = () => {
     mutation.mutate(stateProduct, {
       onSettled: () => {
-        queryProduct.refetch()
-      }
+        queryProduct.refetch();
+      },
     });
   };
   const handleOnchange = (e) => {
@@ -269,12 +275,15 @@ const AdminProduct = () => {
   };
 
   const onUpdateProduct = () => {
-    mutationUpdate.mutate({ id: rowSelected, token: user?.access_token, ...stateProductDetails }, {
-      onSettled: () => {
-        queryProduct.refetch()
+    mutationUpdate.mutate(
+      { id: rowSelected, token: user?.access_token, ...stateProductDetails },
+      {
+        onSettled: () => {
+          queryProduct.refetch();
+        },
       }
-    })
-  }
+    );
+  };
 
   return (
     <div>
